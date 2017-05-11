@@ -1,8 +1,8 @@
 # `<favorite-star></favorite-star>`
 
-Simple Web Component that displays a clickable "favorite star". The star has a neat animation when it's activated.
+Simple Web Component (v1) that displays a clickable "favorite star". The star has a neat animation when it's activated.
 
-[Check it out!](http://argelius.github.io/favorite-star/)
+[Check it out!](http://frandiox.github.io/favorite-star/)
 
 ## Usage
 
@@ -20,16 +20,8 @@ You can use the attribute `active` to display a golden star:
 
 ## Installation
 
-Install it with `bower`:
-
 ```bash
-$ bower install favorite-star
-```
-
-or with `npm`:
-
-```bash
-$ npm install favorite-star
+$ npm install frandiox/favorite-star
 ```
 
 Include it in your page:

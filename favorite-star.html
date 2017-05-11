@@ -1,27 +1,24 @@
 <!--
 Favorite Button/Star
 
-@element favorite-star 
-@demo https://argelius.github.io/favorite-star/index.html
+@element favorite-star
+@demo https://frandiox.github.io/favorite-star/index.html
 -->
 <template>
   <style>
-    .favorite-star-character {
+    span {
       color: #ccd6dd;
       cursor: pointer;
       display: inline-block;
-
       transform: scale3d(1.0, 1.0, 1.0);
       -webkit-transform: scale3d(1.0, 1.0, 1.0);
       -moz-transform: scale3d(1.0, 1.0, 1.0);
-
       -webkit-touch-callout: none;
       -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
     }
-
     @-webkit-keyframes favorite-star-bounce {
       0% {
         -webkit-transform: scale3d(1.0, 1.0, 1.0);
@@ -33,7 +30,6 @@ Favorite Button/Star
         -webkit-transform: scale3d(1.0, 1.0, 1.0);
       }
     }
-
     @-moz-keyframes favorite-star-bounce {
       0% {
         -moz-transform: scale3d(1.0, 1.0, 1.0);
@@ -45,7 +41,6 @@ Favorite Button/Star
         -moz-transform: scale3d(1.0, 1.0, 1.0);
       }
     }
-
     @keyframes favorite-star-bounce {
       0% {
         transform: scale3d(1.0, 1.0, 1.0);
@@ -57,101 +52,70 @@ Favorite Button/Star
         transform: scale3d(1.0, 1.0, 1.0);
       }
     }
-
-    .favorite-star-character[active] {
+    span[active] {
       color: #ffac33;
-
       -webkit-animation: favorite-star-bounce 0.3s ease-in-out;
       -moz-animation: favorite-star-bounce 0.3s ease-in-out;
       animation: favorite-star-bounce 0.3s ease-in-out;
     }
-
-    .favorite-star-character[hover] {
-      color: #ffac33;
+    span:hover:not([active]) {
+      color: #f5c682;
     }
   </style>
-  <span class="favorite-star-character">&#x2605;</span>
+
+  <span>&#x2605;</span>
 </template>
+
 <script>
-  window.FavoriteStarElement = (function() {
-    var currentScript = document._currentScript || document.currentScript,
-      doc = currentScript.ownerDocument,
-      proto = Object.create(HTMLElement.prototype);
+  // Get current document
+  const thisDoc = document.currentScript.ownerDocument;
 
-    proto.createdCallback = function() {
-      var template = doc.querySelector('template'),
-        clone = document.importNode(template.content, true);
+  // Favorite Star Custom Element v1
+  class FavoriteStar extends HTMLElement {
+    constructor() {
+      super();
 
-      this.shadowRoot = this.createShadowRoot();
-      this.shadowRoot.appendChild(clone);
-      this.element = this.shadowRoot.querySelector('.favorite-star-character');
+      // Get and clone the <template>
+      const template = thisDoc.querySelector('template');
+      const clone = document.importNode(template.content, true);
 
-      this.boundOnClick = this.onClick.bind(this);
-      this.boundOnMouseover = this.onMouseover.bind(this);
-      this.boundOnMouseout = this.onMouseout.bind(this);
+      // Create shadow DOM
+      const shadowRoot = this.attachShadow({mode: 'open'});
+      shadowRoot.appendChild(clone);
 
-      if (this.hasAttribute('active')) {
-        this.element.setAttribute('active', '');
+      // Save a reference to the star element
+      this.starElement = shadowRoot.querySelector('span');
+      this.boundOnClick = this.toggle.bind(this);
+    }
+
+    connectedCallback() {
+      this.addEventListener('click', this.boundOnClick);
+    }
+
+    disconnectedCallback() {
+      this.removeEventListener('click', this.boundOnClick);
+    }
+
+    static get observedAttributes() {
+      return ['active'];
+    }
+
+    attributeChangedCallback(attr, oldValue, newValue) {
+      if (attr === 'active') {
+        // Update the star element
+        console.log('toggle!')
+        this.toggle.call(this.starElement);
       }
-    };
+    }
 
-    proto.toggle = function() {
+    toggle() {
       if (this.hasAttribute('active')) {
         this.removeAttribute('active');
-      }
-      else {
+      } else {
         this.setAttribute('active', '');
       }
     }
+  }
 
-    proto.onClick = function() {
-      this.toggle();
-    }
-
-    proto.onMouseover = function() {
-      var el = this.element;
-
-      if (!el.hasAttribute('active')) {
-        el.setAttribute('hover', '');
-      }
-    }
-
-    proto.onMouseout = function() {
-      var el = this.element;
-
-      el.removeAttribute('hover');
-    }
-
-    proto.attachedCallback = function() {
-      var el = this.element;
-
-      el.addEventListener('click', this.boundOnClick);
-      el.addEventListener('mouseout', this.boundOnMouseout);
-      el.addEventListener('mouseover', this.boundOnMouseover);
-    }
-
-    proto.detachedCallback = function() {
-      var el = this.element;
-
-      el.removeEventListener('click', this.boundOnClick);
-      el.removeEventListener('mouseout', this.boundOnMouseout);
-      el.removeEventListener('mouseover', this.boundOnMouseover);
-    }
-
-    proto.attributeChangedCallback = function(attr) {
-      if (attr === 'active') {
-        var el = this.element;
-
-        if (this.hasAttribute('active')) {
-          el.setAttribute('active', '');
-        }
-        else {
-          el.removeAttribute('active');
-          el.removeAttribute('hover');
-        }
-      }
-    }
-
-    return document.registerElement('favorite-star', {prototype: proto});
-  })();
+  window.customElements.define('favorite-star', FavoriteStar);
 </script>
